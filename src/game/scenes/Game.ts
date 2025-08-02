@@ -124,17 +124,7 @@ export class Game extends Scene {
     this.bulletCooldown = 0;
     this.enemySpawnCooldown = 0;
 
-    const particles = this.add.particles("bullet");
-
-    const emitter = particles.createEmitter({
-      speed: 100,
-      lifespan: 300,
-      scale: { start: 1, end: 0 },
-      blendMode: "ADD",
-    });
-
     this.physics.add.collider(this.bullets, this.enemies, (bullet, enemy) => {
-      emitter.explode(20, bullet.x, bullet.y);
       bullet.destroy();
       enemy.destroy();
     });

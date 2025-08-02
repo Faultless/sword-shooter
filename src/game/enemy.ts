@@ -12,15 +12,15 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
   spawn(player: any, enemySpeed = ENEMY_SPEED) {
     this.setScale(0);
 
-    // face opposite way from the player
-    this.setRotation(player.rotation - 180);
+    // Face the player
+    this.setAngle(player.angle - 180);
 
-    // Offset the bullet to start a bit right of the shooter
+    // Offset the enemy to spawn at a distance from the player
     this.x = player.x + (500 * Math.cos(this.rotation));
     this.y = player.y + (500 * Math.sin(this.rotation));
 
-    this.setVelocityX(enemySpeed * Math.cos(Math.PI * this.angle / 180));
-    this.setVelocityY(enemySpeed * Math.sin(Math.PI * this.angle / 180));
+    this.setVelocityX(-enemySpeed * Math.cos(this.rotation));
+    this.setVelocityY(-enemySpeed * Math.sin(this.rotation));
 
     this.born = 0;
 
