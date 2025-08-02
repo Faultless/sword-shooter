@@ -1,8 +1,10 @@
 import { Scene } from "phaser";
 import Bullet from "../bullet";
+import Enemy from "../enemy";
 
 const MAX_PLAYER_SPEED = 200;
 export const BULLET_SPEED = 800;
+export const ENEMY_SPEED = 100;
 
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
@@ -13,6 +15,8 @@ export class Game extends Scene {
   shootJoyStick: any;
   bullets: any;
   bulletCooldown: any;
+  enemySpawnCooldown: any;
+  enemies: any;
 
   constructor() {
     super("Game");
@@ -28,6 +32,17 @@ export class Game extends Scene {
     this.anims.create({
       key: "sword_idle",
       frames: this.anims.generateFrameNumbers("sword_idle", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 9,
+      repeat: -1,
+    });
+
+    // Create enemy idle animation
+    this.anims.create({
+      key: "enemy_idle",
+      frames: this.anims.generateFrameNumbers("enemy_idle", {
         start: 0,
         end: 3,
       }),
@@ -97,17 +112,53 @@ export class Game extends Scene {
       }
     });
 
+    this.enemies = this.physics.add.group({
+      classType: Enemy,
+      runChildUpdate: true,
+    });
+
     this.bullets = this.physics.add.group({
       classType: Bullet,
       runChildUpdate: true,
     });
     this.bulletCooldown = 0;
+    this.enemySpawnCooldown = 0;
+
+    const particles = this.add.particles("bullet");
+
+    const emitter = particles.createEmitter({
+      speed: 100,
+      lifespan: 300,
+      scale: { start: 1, end: 0 },
+      blendMode: "ADD",
+    });
+
+    this.physics.add.collider(this.bullets, this.enemies, (bullet, enemy) => {
+      emitter.explode(20, bullet.x, bullet.y);
+      bullet.destroy();
+      enemy.destroy();
+    });
+
+    this.physics.add.collider(this.player, this.enemies, () => {
+      this.scene.restart();
+    });
   }
 
   update(_time: number, delta: number) {
     if (this.bulletCooldown > 0) {
       // Reduce bullet cooldown
       this.bulletCooldown -= delta;
+    }
+    if (this.enemySpawnCooldown > 0) {
+      this.enemySpawnCooldown -= delta;
+    }
+
+    if (this.enemySpawnCooldown <= 0) {
+      const enemy = this.enemies.get().setActive(true).setVisible(true);
+      if (enemy) {
+        enemy.spawn(this.player);
+        this.enemySpawnCooldown = 500;
+      }
     }
 
     if (this.shootJoyStick.force) {
