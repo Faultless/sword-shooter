@@ -34,7 +34,7 @@ export class Preloader extends Scene {
     this.load.setPath("assets");
 
     this.load.image("dungeonTiles", "dungeon.png");
-    this.load.tilemapTiledXML("dungeonMap", "dungeon.xml");
+    this.load.tilemapTiledJSON("dungeonMap", "slash_dungeon.json");
 
     this.load.spritesheet("enemy_idle", "enemy_idle.png", {
       frameWidth: 128,
