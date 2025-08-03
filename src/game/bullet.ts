@@ -4,13 +4,14 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
   born: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, "bullet");
+    super(scene, x, y, "slash");
 
     this.born = 0;
   }
 
   fire(shooter: any, bulletSpeed = BULLET_SPEED) {
     this.setRotation(shooter.rotation);
+    this.play("slash");
 
     // Offset the bullet to start a bit right of the shooter
     this.x = shooter.x + (50 * Math.cos(this.rotation));

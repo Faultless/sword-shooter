@@ -23,10 +23,21 @@ export class Game extends Scene {
   }
 
   create() {
+    // Create Map
+    const map = this.make.tilemap({ key: "dungeonMap" });
+    const tileset = map.addTilesetImage("dungeon", "dungeonTiles");
+
+    const floorLayer = map.createLayer("Floors", tileset!);
+    const wallLayer = map.createLayer("Walls", tileset!);
+
+    wallLayer?.setCollisionByProperty({ collides: true });
+
     // Create player
     this.player = this.physics.add.sprite(200, 200, "sword_idle");
     this.player.setCollideWorldBounds(true);
     this.player.setOrigin(0.5, 0.72); // Set origin for bullet fire start
+
+    this.physics.add.collider(this.player, wallLayer!);
 
     // Create sword idle animation
     this.anims.create({
@@ -36,6 +47,16 @@ export class Game extends Scene {
         end: 3,
       }),
       frameRate: 9,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: "sword_slash",
+      frames: this.anims.generateFrameNumbers("sword_slash", {
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 12,
       repeat: -1,
     });
 
@@ -155,6 +176,7 @@ export class Game extends Scene {
       // Rotate according to joystick
       this.player.setAngle(this.shootJoyStick.angle);
 
+      this.player.play("sword_slash", true);
       // Fire bullet according to joystick
       if (
         this.shootJoyStick.force >= this.shootJoyStick.radius &&

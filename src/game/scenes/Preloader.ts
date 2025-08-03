@@ -33,11 +33,22 @@ export class Preloader extends Scene {
     //  Load the assets for the game - Replace with your own assets
     this.load.setPath("assets");
 
+    this.load.image("dungeonTiles", "dungeon.png");
+    this.load.tilemapTiledXML("dungeonMap", "dungeon.xml");
+
     this.load.spritesheet("enemy_idle", "enemy_idle.png", {
       frameWidth: 128,
       frameHeight: 128,
     });
     this.load.spritesheet("sword_idle", "sword_idle.png", {
+      frameWidth: 128,
+      frameHeight: 128,
+    });
+    this.load.spritesheet("sword_slash", "sword_slash.png", {
+      frameWidth: 128,
+      frameHeight: 128,
+    });
+    this.load.spritesheet("slash", "slash.png", {
       frameWidth: 128,
       frameHeight: 128,
     });
