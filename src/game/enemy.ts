@@ -1,44 +1,59 @@
 import { ENEMY_SPEED } from "./scenes/Game";
 
 class Enemy extends Phaser.Physics.Arcade.Sprite {
-  born: number;
-
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "enemy_idle");
-
-    this.born = 0;
   }
 
-  spawn(player: any, enemySpeed = ENEMY_SPEED) {
+  spawn(_player: any, enemySpeed = ENEMY_SPEED) {
     this.setScale(0);
 
-    // Face the player
-    this.setAngle(player.angle - 180);
+    // Get canvas center
+    const centerX = this.scene.cameras.main.width / 2;
+    const centerY = this.scene.cameras.main.height / 2;
+    // Calculate angle from object to center
+    const angleToCenter = Phaser.Math.Angle.Between(
+      this.x,
+      this.y,
+      centerX,
+      centerY,
+    );
+
+    // Convert to degrees and set angle
+    this.setAngle(Phaser.Math.RadToDeg(angleToCenter) + 135);
 
     // Offset the enemy to spawn at a distance from the player
-    this.x = player.x + (500 * Math.cos(this.rotation));
-    this.y = player.y + (500 * Math.sin(this.rotation));
+    let x = 0,
+      y = this.scene.cameras.main.height * Math.random(),
+      offset = 500 * Math.random();
+
+    if (Math.random() > 0.5) {
+      offset = -500 * Math.random();
+      x = this.scene.cameras.main.width;
+      this.setAngle(Phaser.Math.RadToDeg(angleToCenter - 45));
+    }
+    this.x = x + offset;
+    this.y = y + offset;
 
     this.setVelocityX(-enemySpeed * Math.cos(this.rotation));
     this.setVelocityY(-enemySpeed * Math.sin(this.rotation));
 
-    this.born = 0;
-
-    this.play("enemy_idle");
+    this.play("enemy_idle").setScale(0.25);
 
     this.scene.tweens.add({
       targets: this,
-      scaleX: 1,
-      scaleY: 1,
+      scaleX: 0.5,
+      scaleY: 0.5,
       ease: "Sine.easeInOut",
-      duration: 200,
+      duration: 150,
     });
   }
 
-  update(_time: number, delta: number) {
-    this.born += delta;
-
-    if (this.born > 1500) {
+  update(_time: number, _delta: number) {
+    if (
+      this.x > this.scene.cameras.main.width || this.x < 0 ||
+      this.y > this.scene.cameras.main.height || this.y < 0
+    ) {
       this.destroy();
     }
   }

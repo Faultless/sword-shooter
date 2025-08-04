@@ -2,6 +2,7 @@ import { Scene } from "phaser";
 import Bullet from "../bullet";
 import Enemy from "../enemy";
 
+const MAX_ENEMIES = 20;
 const MAX_PLAYER_SPEED = 200;
 export const BULLET_SPEED = 800;
 export const ENEMY_SPEED = 100;
@@ -17,12 +18,33 @@ export class Game extends Scene {
   bulletCooldown: any;
   enemySpawnCooldown: any;
   enemies: any;
+  enemyCount: number = 0;
+  backgroundMusic: any;
 
   constructor() {
     super("Game");
   }
 
   create() {
+    // load music loop
+    this.backgroundMusic = this.sound.add("bgm", {
+      loop: true,
+      volume: 0.5,
+    });
+
+    this.backgroundMusic.play();
+
+    this.background = this.add.image(
+      this.cameras.main.width / 2,
+      this.cameras.main.height / 2,
+      "background",
+    );
+    this.background.setOrigin(0.5, 0.5);
+    this.background.setScale(
+      this.cameras.main.width / this.background.width,
+      this.cameras.main.height / this.background.height,
+    );
+
     // Create Map
     const map = this.make.tilemap({ key: "dungeonMap" });
     const tileset = map.addTilesetImage("dungeon", "dungeonTiles");
@@ -30,13 +52,30 @@ export class Game extends Scene {
     const floorLayer = map.createLayer("Floors", tileset!);
     const wallLayer = map.createLayer("Walls", tileset!);
 
+    const scaleX = this.cameras.main.width / map.widthInPixels;
+    const scaleY = this.cameras.main.height / map.heightInPixels;
+    const scale = Math.max(scaleX, scaleY);
+
+    floorLayer?.setScale(scale);
+    wallLayer?.setScale(scale);
+
+    this.physics.world.setBounds(
+      0,
+      0,
+      map.widthInPixels * scale,
+      map.heightInPixels * scale,
+    );
+
     wallLayer?.setCollisionByProperty({ collides: true });
 
     // Create player
-    this.player = this.physics.add.sprite(200, 200, "sword_idle");
+    this.player = this.physics.add.sprite(
+      map.widthInPixels * scale / 2,
+      map.heightInPixels * scale / 2,
+      "sword_idle",
+    ).setScale(0.5);
     this.player.setCollideWorldBounds(true);
     this.player.setOrigin(0.5, 0.72); // Set origin for bullet fire start
-
     this.physics.add.collider(this.player, wallLayer!);
 
     // Create sword idle animation
@@ -165,10 +204,13 @@ export class Game extends Scene {
     }
 
     if (this.enemySpawnCooldown <= 0) {
-      const enemy = this.enemies.get().setActive(true).setVisible(true);
-      if (enemy) {
-        enemy.spawn(this.player);
-        this.enemySpawnCooldown = 500;
+      if (this.enemyCount <= MAX_ENEMIES) {
+        this.enemyCount++;
+        const enemy = this.enemies.get().setActive(true).setVisible(true);
+        if (enemy) {
+          enemy.spawn(this.player);
+          this.enemySpawnCooldown = 500;
+        }
       }
     }
 
