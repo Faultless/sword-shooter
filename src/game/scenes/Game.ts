@@ -19,6 +19,7 @@ export class Game extends Scene {
   enemySpawnCooldown: any;
   enemies: any;
   enemyCount: number = 0;
+  killedEnemies: number = 0;
   backgroundMusic: any;
 
   constructor() {
@@ -187,10 +188,15 @@ export class Game extends Scene {
     this.physics.add.collider(this.bullets, this.enemies, (bullet, enemy) => {
       bullet.destroy();
       enemy.destroy();
+      this.killedEnemies++;
+      if (this.killedEnemies === 20) {
+        this.scene.start("GameOver");
+      }
     });
 
     this.physics.add.collider(this.player, this.enemies, () => {
-      this.scene.restart();
+      this.backgroundMusic.stop();
+      this.scene.start("GameOver");
     });
   }
 
