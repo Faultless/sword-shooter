@@ -96,6 +96,8 @@ export class Game extends Scene {
       },
     ).on("update", () => { }, this);
 
+    this.input.keyboard.on("keydown-I", () => this.showInventory());
+
     // Create shooting joystick
     this.shootJoyStick = this.plugins.get("rexvirtualjoystickplugin").add(
       this.scene,
@@ -229,5 +231,10 @@ export class Game extends Scene {
       this.player.setVelocityX(0);
       this.player.setVelocityY(0);
     }
+  }
+
+  showInventory() {
+    this.scene.pause();
+    this.scene.launch("Inventory");
   }
 }

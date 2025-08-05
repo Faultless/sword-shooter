@@ -4,6 +4,8 @@ import { Game as MainGame } from "./scenes/Game";
 import { MainMenu } from "./scenes/MainMenu";
 import { AUTO, Game, Scale } from "phaser";
 import { Preloader } from "./scenes/Preloader";
+import Inventory from "./scenes/Inventory";
+import Loot from "./scenes/Loot";
 
 //  Find out more information about the Game Config at:
 //  https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
@@ -22,6 +24,8 @@ const config: Phaser.Types.Core.GameConfig = {
     Preloader,
     MainMenu,
     MainGame,
+    Inventory,
+    Loot,
     GameOver,
   ],
   physics: {

@@ -56,6 +56,10 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     this.isDying = true;
 
+    this.setVelocity(0, 0);
+    (this.body as Phaser.Physics.Arcade.Body).enable = false;
+    this.setAngle(0);
+
     this.play("lightning_strike");
 
     this.once("animationcomplete-lightning_strike", () => {
