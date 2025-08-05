@@ -58,6 +58,10 @@ export class Preloader extends Scene {
     this.load.image("dungeonTiles", "tilemap.png");
     this.load.tilemapTiledJSON("dungeonMap", "dungeon_map.tmj");
 
+    this.load.spritesheet("lightning_strike", "lightning_strike.png", {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
     this.load.spritesheet("enemy_idle", "enemy_idle.png", {
       frameWidth: 128,
       frameHeight: 128,
@@ -83,6 +87,42 @@ export class Preloader extends Scene {
   create() {
     //  When all the assets have loaded, it's often worth creating global objects here that the rest of the game can use.
     //  For example, you can define global animations here, so we can use them in other scenes.
+    this.anims.create({
+      key: "enemy_idle",
+      frames: this.anims.generateFrameNumbers("enemy_idle", {
+        start: 0,
+        end: 8,
+      }),
+      frameRate: 9,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: "sword_idle",
+      frames: this.anims.generateFrameNumbers("sword_idle", {
+        start: 0,
+        end: 8,
+      }),
+      frameRate: 9,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: "sword_slash",
+      frames: this.anims.generateFrameNumbers("sword_slash", {
+        start: 0,
+        end: 9,
+      }),
+      frameRate: 12,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: "lightning_strike",
+      frames: this.anims.generateFrameNumbers("lightning_strike", {
+        start: 0,
+        end: 7,
+      }),
+      frameRate: 15,
+      repeat: 0,
+    });
 
     //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
     this.scene.start("MainMenu");

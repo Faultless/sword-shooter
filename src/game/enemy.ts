@@ -1,6 +1,8 @@
 import { ENEMY_SPEED } from "./scenes/Game";
 
 class Enemy extends Phaser.Physics.Arcade.Sprite {
+  isDying: boolean = false;
+
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "enemy_idle");
   }
@@ -46,6 +48,18 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
       scaleY: 0.5,
       ease: "Sine.easeInOut",
       duration: 150,
+    });
+  }
+
+  die() {
+    if (this.isDying) return;
+
+    this.isDying = true;
+
+    this.play("lightning_strike");
+
+    this.once("animationcomplete-lightning_strike", () => {
+      this.destroy();
     });
   }
 

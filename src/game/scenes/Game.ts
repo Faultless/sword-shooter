@@ -79,38 +79,6 @@ export class Game extends Scene {
     this.player.setOrigin(0.5, 0.72); // Set origin for bullet fire start
     this.physics.add.collider(this.player, wallLayer!);
 
-    // Create sword idle animation
-    this.anims.create({
-      key: "sword_idle",
-      frames: this.anims.generateFrameNumbers("sword_idle", {
-        start: 0,
-        end: 3,
-      }),
-      frameRate: 9,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "sword_slash",
-      frames: this.anims.generateFrameNumbers("sword_slash", {
-        start: 0,
-        end: 3,
-      }),
-      frameRate: 12,
-      repeat: -1,
-    });
-
-    // Create enemy idle animation
-    this.anims.create({
-      key: "enemy_idle",
-      frames: this.anims.generateFrameNumbers("enemy_idle", {
-        start: 0,
-        end: 3,
-      }),
-      frameRate: 9,
-      repeat: -1,
-    });
-
     this.player.play("sword_idle");
 
     // Create movement joystick
@@ -126,7 +94,7 @@ export class Game extends Scene {
           100,
         ).setAlpha(0.5),
       },
-    ).on("update", () => {}, this);
+    ).on("update", () => { }, this);
 
     // Create shooting joystick
     this.shootJoyStick = this.plugins.get("rexvirtualjoystickplugin").add(
@@ -143,7 +111,7 @@ export class Game extends Scene {
           100,
         ).setAlpha(0.5),
       },
-    ).on("update", () => {}, this);
+    ).on("update", () => { }, this);
 
     // Move joysticks dynamically based on pointer-down
     this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
@@ -185,14 +153,18 @@ export class Game extends Scene {
     this.bulletCooldown = 0;
     this.enemySpawnCooldown = 0;
 
-    this.physics.add.collider(this.bullets, this.enemies, (bullet, enemy) => {
-      bullet.destroy();
-      enemy.destroy();
-      this.killedEnemies++;
-      if (this.killedEnemies === 20) {
-        this.scene.start("GameOver");
-      }
-    });
+    this.physics.add.collider(
+      this.bullets,
+      this.enemies,
+      (bullet, enemy: Enemy) => {
+        bullet.destroy();
+        enemy.die();
+        this.killedEnemies++;
+        if (this.killedEnemies === 20) {
+          this.scene.start("GameOver");
+        }
+      },
+    );
 
     this.physics.add.collider(this.player, this.enemies, () => {
       this.backgroundMusic.stop();
