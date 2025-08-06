@@ -18,6 +18,7 @@ export class Game extends Scene {
   bulletCooldown: any;
   enemySpawnCooldown: any;
   enemies: any;
+  loots: Phaser.Physics.Arcade.StaticGroup;
   enemyCount: number = 0;
   killedEnemies: number = 0;
   backgroundMusic: any;
@@ -148,6 +149,8 @@ export class Game extends Scene {
       runChildUpdate: true,
     });
 
+    this.loots = this.physics.add.staticGroup();
+
     this.bullets = this.physics.add.group({
       classType: Bullet,
       runChildUpdate: true,
@@ -162,6 +165,9 @@ export class Game extends Scene {
         bullet.destroy();
         enemy.die();
         this.killedEnemies++;
+        if (this.killedEnemies % 1 === 0) {
+          this.dropLoot(enemy);
+        }
         if (this.killedEnemies === 20) {
           this.scene.start("GameOver");
         }
@@ -172,6 +178,14 @@ export class Game extends Scene {
       this.backgroundMusic.stop();
       this.scene.start("GameOver");
     });
+
+    this.physics.add.overlap(
+      this.player,
+      this.loots,
+      this.collectLoot,
+      undefined,
+      this,
+    );
   }
 
   update(_time: number, delta: number) {
@@ -236,5 +250,16 @@ export class Game extends Scene {
   showInventory() {
     this.scene.pause();
     this.scene.launch("Inventory");
+  }
+
+  dropLoot(enemy: Enemy) {
+    const loot = this.add.rectangle(enemy.x, enemy.y, 20, 20, 0xffd700);
+    this.loots.add(loot);
+  }
+
+  collectLoot(_player: any, loot: any) {
+    loot.destroy();
+    this.scene.pause();
+    this.scene.launch("Loot");
   }
 }
