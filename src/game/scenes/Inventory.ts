@@ -1,4 +1,4 @@
-class Inventory extends Phaser.Scene {
+class InventoryScene extends Phaser.Scene {
   constructor() {
     super({ key: "Inventory" });
   }
@@ -31,7 +31,16 @@ class Inventory extends Phaser.Scene {
       this.scene.resume("Game");
     });
 
-    modal.add([bg, title, closeBtn]);
+    const coins = this.add.text(
+      100,
+      -150,
+      `Gold: ${this.scene.get("Game").player.inventory.gold}`,
+      {
+        fontSize: "32px",
+      },
+    );
+
+    modal.add([bg, title, closeBtn, coins]);
 
     modal.setScale(0);
 
@@ -45,4 +54,4 @@ class Inventory extends Phaser.Scene {
   }
 }
 
-export default Inventory;
+export default InventoryScene;

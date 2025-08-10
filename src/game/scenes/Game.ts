@@ -2,7 +2,7 @@ import { Scene } from "phaser";
 import Enemy from "../enemy";
 import Player from "../player";
 
-const MAX_ENEMIES = 1;
+const MAX_ENEMIES = 8;
 export const BULLET_SPEED = 800;
 export const ENEMY_SPEED = 100;
 
@@ -72,18 +72,20 @@ export class Game extends Scene {
       300,
       scale,
     );
-    // this.physics.add.collider(this.player, wallLayer!);
+
+    this.enemies = this.physics.add.group({
+      classType: Enemy,
+      runChildUpdate: true,
+    });
+
+    this.physics.add.collider(this.player, wallLayer!);
+    this.physics.add.collider(this.enemies, wallLayer!);
 
     this.input.keyboard?.on(
       "keydown-Z",
       () => this.player.attack(this.enemies),
     );
     this.input.keyboard?.on("keydown-I", () => this.showInventory());
-
-    this.enemies = this.physics.add.group({
-      classType: Enemy,
-      runChildUpdate: true,
-    });
 
     this.loots = this.physics.add.staticGroup();
 
@@ -127,7 +129,8 @@ export class Game extends Scene {
     this.scene.launch("Inventory");
   }
 
-  collectLoot(_player: any, loot: any) {
+  collectLoot(player: Player, loot: any) {
+    player.lootCoins(loot.coins ?? 1);
     loot.destroy();
     this.scene.pause();
     this.scene.launch("Loot");

@@ -1,5 +1,6 @@
 import { GameObjects } from "phaser";
 import Enemy from "./enemy";
+import Inventory from "./inventory";
 
 class Player extends Phaser.Physics.Arcade.Sprite {
   isDying: boolean = false;
@@ -7,10 +8,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   private weapon!: Phaser.GameObjects.Sprite;
   movKeys: any;
   speed: number = 200;
+  inventory: Inventory;
 
   constructor(scene: Phaser.Scene, x: number, y: number, scale: number) {
     super(scene, x, y, "player_idle");
 
+    this.inventory = new Inventory(scene);
     this.setScale(scale);
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -58,6 +61,10 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         enemy.hit();
       });
     });
+  }
+
+  lootCoins(amount: number) {
+    this.inventory.gold += amount;
   }
 
   die() {
