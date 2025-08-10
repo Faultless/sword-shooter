@@ -1,10 +1,8 @@
 import { Scene } from "phaser";
-import Bullet from "../bullet";
 import Enemy from "../enemy";
 import Player from "../player";
 
 const MAX_ENEMIES = 1;
-const MAX_PLAYER_SPEED = 200;
 export const BULLET_SPEED = 800;
 export const ENEMY_SPEED = 100;
 
@@ -13,17 +11,12 @@ export class Game extends Scene {
   background: Phaser.GameObjects.Image;
   msg_text: Phaser.GameObjects.Text;
   private player: Player;
-  movementJoyStick: any;
-  shootJoyStick: any;
-  bullets: any;
-  bulletCooldown: any;
   enemySpawnCooldown: any;
   enemies: Phaser.GameObjects.Group;
   loots: Phaser.Physics.Arcade.StaticGroup;
   enemyCount: number = 0;
   killedEnemies: number = 0;
   backgroundMusic: any;
-  isShooting: boolean = false;
 
   constructor() {
     super("Game");
@@ -81,75 +74,11 @@ export class Game extends Scene {
     );
     // this.physics.add.collider(this.player, wallLayer!);
 
-    const joystickPlugin: Phaser.Plugins.BasePlugin = this.plugins.get(
-      "rexvirtualjoystickplugin",
-    )! as Phaser.Plugins.BasePlugin;
-
-    // Create movement joystick
-    this.movementJoyStick = joystickPlugin.add(
-      this.scene,
-      {
-        x: 100,
-        y: this.cameras.main.height - 125,
-        radius: 40,
-        forceMin: 0,
-        base: this.add.circle(0, 0, 60, 0x888888).setDepth(100).setAlpha(0.25),
-        thumb: this.add.image(0, 0, "joystick").setDisplaySize(80, 80).setDepth(
-          100,
-        ).setAlpha(0.5),
-      },
-    ).on("update", () => { }, this);
-
     this.input.keyboard?.on(
       "keydown-Z",
       () => this.player.attack(this.enemies),
     );
     this.input.keyboard?.on("keydown-I", () => this.showInventory());
-
-    // Create shooting joystick
-    this.shootJoyStick = joystickPlugin.add(
-      this.scene,
-      {
-        x: this.cameras.main.width - 100,
-        y: this.cameras.main.height - 125,
-        radius: 20,
-        forceMin: 0,
-        base: this.add.circle(0, 0, 60, 0x888888, 0.5).setDepth(100).setAlpha(
-          0.25,
-        ),
-        thumb: this.add.image(0, 0, "joystick").setDisplaySize(80, 80).setDepth(
-          100,
-        ).setAlpha(0.5),
-      },
-    ).on("update", () => { }, this);
-
-    // Move joysticks dynamically based on pointer-down
-    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
-      if (pointer.x <= this.cameras.main.width * 0.4) {
-        this.movementJoyStick.base.setPosition(pointer.x, pointer.y).setAlpha(
-          0.5,
-        );
-        this.movementJoyStick.thumb.setPosition(pointer.x, pointer.y).setAlpha(
-          1,
-        );
-      }
-      if (pointer.x >= this.cameras.main.width * 0.6) {
-        this.shootJoyStick.base.setPosition(pointer.x, pointer.y).setAlpha(0.5);
-        this.shootJoyStick.thumb.setPosition(pointer.x, pointer.y).setAlpha(1);
-      }
-    });
-
-    // Add transparency to joysticks on pointer-up
-    this.input.on("pointerup", (_pointer: Phaser.Input.Pointer) => {
-      if (!this.movementJoyStick.force) {
-        this.movementJoyStick.base.setAlpha(0.25);
-        this.movementJoyStick.thumb.setAlpha(0.5);
-      }
-      if (!this.shootJoyStick.force) {
-        this.shootJoyStick.base.setAlpha(0.25);
-        this.shootJoyStick.thumb.setAlpha(0.5);
-      }
-    });
 
     this.enemies = this.physics.add.group({
       classType: Enemy,
@@ -158,28 +87,7 @@ export class Game extends Scene {
 
     this.loots = this.physics.add.staticGroup();
 
-    this.bullets = this.physics.add.group({
-      classType: Bullet,
-      runChildUpdate: true,
-    });
-    this.bulletCooldown = 0;
     this.enemySpawnCooldown = 0;
-
-    this.physics.add.collider(
-      this.bullets,
-      this.enemies,
-      (bullet, enemy: Enemy) => {
-        bullet.destroy();
-        enemy.hit();
-        this.killedEnemies++;
-        if (this.killedEnemies % 1 === 0) {
-          this.dropLoot(enemy);
-        }
-        if (this.killedEnemies === 20) {
-          this.scene.start("GameOver");
-        }
-      },
-    );
 
     this.physics.add.collider(this.player, this.enemies, () => {
       this.backgroundMusic.stop();
@@ -198,10 +106,6 @@ export class Game extends Scene {
   update(_time: number, delta: number) {
     this.player.update();
 
-    if (this.bulletCooldown > 0) {
-      // Reduce bullet cooldown
-      this.bulletCooldown -= delta;
-    }
     if (this.enemySpawnCooldown > 0) {
       this.enemySpawnCooldown -= delta;
     }
@@ -216,59 +120,11 @@ export class Game extends Scene {
         }
       }
     }
-
-    if (this.shootJoyStick.force) {
-      // Rotate according to joystick
-      this.player.setAngle(this.shootJoyStick.angle);
-
-      if (!this.isShooting) {
-        this.player.play("sword_slash", true);
-        this.isShooting = true;
-      }
-      // // Fire bullet according to joystick
-      // if (
-      //   this.shootJoyStick.force >= this.shootJoyStick.radius &&
-      //   this.bulletCooldown <= 0
-      // ) {
-      //   const bullet = this.bullets.get().setActive(true).setVisible(true);
-      //   bullet.fire(this.player);
-      //
-      //   this.bulletCooldown = 100;
-      // }
-    } else {
-      this.isShooting = false;
-    }
-
-    if (this.movementJoyStick.force) {
-      // Calculate speed based on joystick force
-      let speedMultiplier =
-        (this.movementJoyStick.force < this.movementJoyStick.radius)
-          ? this.movementJoyStick.force / this.movementJoyStick.radius
-          : 1;
-      let speed = MAX_PLAYER_SPEED * speedMultiplier;
-
-      // Move player according to movement joystick
-      // this.player.setVelocityX(
-      //   speed * Math.cos(Math.PI * this.movementJoyStick.angle / 180),
-      // );
-      // this.player.setVelocityY(
-      //   speed * Math.sin(Math.PI * this.movementJoyStick.angle / 180),
-      // );
-    } else {
-      // Stop moving
-      // this.player.setVelocityX(0);
-      // this.player.setVelocityY(0);
-    }
   }
 
   showInventory() {
     this.scene.pause();
     this.scene.launch("Inventory");
-  }
-
-  dropLoot(enemy: Enemy) {
-    const loot = this.add.rectangle(enemy.x, enemy.y, 20, 20, 0xffd700);
-    this.loots.add(loot);
   }
 
   collectLoot(_player: any, loot: any) {
