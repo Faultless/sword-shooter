@@ -66,19 +66,24 @@ export class Preloader extends Scene {
       frameWidth: 128,
       frameHeight: 128,
     });
-    this.load.spritesheet("sword_idle", "sword_idle.png", {
-      frameWidth: 128,
-      frameHeight: 128,
+    this.load.spritesheet("thunder_summon", "thunder_summon.png", {
+      frameWidth: 16,
+      frameHeight: 16,
     });
-    this.load.spritesheet("sword_slash", "sword_slash.png", {
-      frameWidth: 128,
-      frameHeight: 128,
+    this.load.spritesheet("sword_slash", "axe_swing.png", {
+      frameWidth: 32,
+      frameHeight: 32,
     });
     this.load.spritesheet("slash", "slash.png", {
       frameWidth: 128,
       frameHeight: 128,
     });
+    this.load.spritesheet("player_idle", "player_idle.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
 
+    this.load.image("weapon_sprite", "weapon.png");
     this.load.image("logo", "logo.png");
     this.load.image("joystick", "joystick.png");
     this.load.image("bullet", "bullet.png");
@@ -87,11 +92,21 @@ export class Preloader extends Scene {
   create() {
     //  When all the assets have loaded, it's often worth creating global objects here that the rest of the game can use.
     //  For example, you can define global animations here, so we can use them in other scenes.
+
+    this.anims.create({
+      key: "player_idle",
+      frames: this.anims.generateFrameNumbers("player_idle", {
+        start: 0,
+        end: 4,
+      }),
+      frameRate: 9,
+      repeat: -1,
+    });
     this.anims.create({
       key: "enemy_idle",
       frames: this.anims.generateFrameNumbers("enemy_idle", {
         start: 0,
-        end: 8,
+        end: 7,
       }),
       frameRate: 9,
       repeat: -1,
@@ -109,10 +124,19 @@ export class Preloader extends Scene {
       key: "sword_slash",
       frames: this.anims.generateFrameNumbers("sword_slash", {
         start: 0,
-        end: 9,
+        end: 12,
       }),
       frameRate: 12,
-      repeat: -1,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: "thunder_summon",
+      frames: this.anims.generateFrameNumbers("thunder_summon", {
+        start: 0,
+        end: 13,
+      }),
+      frameRate: 9,
+      repeat: 0,
     });
     this.anims.create({
       key: "lightning_strike",

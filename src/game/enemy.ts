@@ -2,6 +2,7 @@ import { ENEMY_SPEED } from "./scenes/Game";
 
 class Enemy extends Phaser.Physics.Arcade.Sprite {
   isDying: boolean = false;
+  health = 5;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "enemy_idle");
@@ -37,8 +38,8 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.x = x + offset;
     this.y = y + offset;
 
-    this.setVelocityX(-enemySpeed * Math.cos(this.rotation));
-    this.setVelocityY(-enemySpeed * Math.sin(this.rotation));
+    // this.setVelocityX(-enemySpeed * Math.cos(this.rotation));
+    // this.setVelocityY(-enemySpeed * Math.sin(this.rotation));
 
     this.play("enemy_idle").setScale(0.25);
 
@@ -63,7 +64,8 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.play("lightning_strike");
 
     this.once("animationcomplete-lightning_strike", () => {
-      this.destroy();
+      this.health--;
+      if (this.health === 0) this.destroy();
     });
   }
 

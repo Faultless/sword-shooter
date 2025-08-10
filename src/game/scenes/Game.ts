@@ -1,8 +1,9 @@
 import { Scene } from "phaser";
 import Bullet from "../bullet";
 import Enemy from "../enemy";
+import Player from "../player";
 
-const MAX_ENEMIES = 20;
+const MAX_ENEMIES = 1;
 const MAX_PLAYER_SPEED = 200;
 export const BULLET_SPEED = 800;
 export const ENEMY_SPEED = 100;
@@ -11,7 +12,7 @@ export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
   background: Phaser.GameObjects.Image;
   msg_text: Phaser.GameObjects.Text;
-  player: any;
+  private player: Player;
   movementJoyStick: any;
   shootJoyStick: any;
   bullets: any;
@@ -22,6 +23,7 @@ export class Game extends Scene {
   enemyCount: number = 0;
   killedEnemies: number = 0;
   backgroundMusic: any;
+  isShooting: boolean = false;
 
   constructor() {
     super("Game");
@@ -71,19 +73,19 @@ export class Game extends Scene {
     wallLayer?.setCollisionByProperty({ collides: true });
 
     // Create player
-    this.player = this.physics.add.sprite(
-      map.widthInPixels * scale / 2,
-      map.heightInPixels * scale / 2,
-      "sword_idle",
-    ).setScale(0.5);
-    this.player.setCollideWorldBounds(true);
-    this.player.setOrigin(0.5, 0.72); // Set origin for bullet fire start
-    this.physics.add.collider(this.player, wallLayer!);
+    this.player = new Player(
+      this,
+      400,
+      300,
+    );
+    // this.physics.add.collider(this.player, wallLayer!);
 
-    this.player.play("sword_idle");
+    const joystickPlugin: Phaser.Plugins.BasePlugin = this.plugins.get(
+      "rexvirtualjoystickplugin",
+    )! as Phaser.Plugins.BasePlugin;
 
     // Create movement joystick
-    this.movementJoyStick = this.plugins.get("rexvirtualjoystickplugin").add(
+    this.movementJoyStick = joystickPlugin.add(
       this.scene,
       {
         x: 100,
@@ -97,10 +99,11 @@ export class Game extends Scene {
       },
     ).on("update", () => { }, this);
 
-    this.input.keyboard.on("keydown-I", () => this.showInventory());
+    this.input.keyboard?.on("keydown-Z", () => this.player.attack());
+    this.input.keyboard?.on("keydown-I", () => this.showInventory());
 
     // Create shooting joystick
-    this.shootJoyStick = this.plugins.get("rexvirtualjoystickplugin").add(
+    this.shootJoyStick = joystickPlugin.add(
       this.scene,
       {
         x: this.cameras.main.width - 100,
@@ -189,6 +192,8 @@ export class Game extends Scene {
   }
 
   update(_time: number, delta: number) {
+    this.player.update();
+
     if (this.bulletCooldown > 0) {
       // Reduce bullet cooldown
       this.bulletCooldown -= delta;
@@ -212,17 +217,22 @@ export class Game extends Scene {
       // Rotate according to joystick
       this.player.setAngle(this.shootJoyStick.angle);
 
-      this.player.play("sword_slash", true);
-      // Fire bullet according to joystick
-      if (
-        this.shootJoyStick.force >= this.shootJoyStick.radius &&
-        this.bulletCooldown <= 0
-      ) {
-        const bullet = this.bullets.get().setActive(true).setVisible(true);
-        bullet.fire(this.player);
-
-        this.bulletCooldown = 100;
+      if (!this.isShooting) {
+        this.player.play("sword_slash", true);
+        this.isShooting = true;
       }
+      // // Fire bullet according to joystick
+      // if (
+      //   this.shootJoyStick.force >= this.shootJoyStick.radius &&
+      //   this.bulletCooldown <= 0
+      // ) {
+      //   const bullet = this.bullets.get().setActive(true).setVisible(true);
+      //   bullet.fire(this.player);
+      //
+      //   this.bulletCooldown = 100;
+      // }
+    } else {
+      this.isShooting = false;
     }
 
     if (this.movementJoyStick.force) {
@@ -234,16 +244,16 @@ export class Game extends Scene {
       let speed = MAX_PLAYER_SPEED * speedMultiplier;
 
       // Move player according to movement joystick
-      this.player.setVelocityX(
-        speed * Math.cos(Math.PI * this.movementJoyStick.angle / 180),
-      );
-      this.player.setVelocityY(
-        speed * Math.sin(Math.PI * this.movementJoyStick.angle / 180),
-      );
+      // this.player.setVelocityX(
+      //   speed * Math.cos(Math.PI * this.movementJoyStick.angle / 180),
+      // );
+      // this.player.setVelocityY(
+      //   speed * Math.sin(Math.PI * this.movementJoyStick.angle / 180),
+      // );
     } else {
       // Stop moving
-      this.player.setVelocityX(0);
-      this.player.setVelocityY(0);
+      // this.player.setVelocityX(0);
+      // this.player.setVelocityY(0);
     }
   }
 
