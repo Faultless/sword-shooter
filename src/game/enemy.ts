@@ -3,9 +3,14 @@ import { ENEMY_SPEED } from "./scenes/Game";
 class Enemy extends Phaser.Physics.Arcade.Sprite {
   isDying: boolean = false;
   health = 5;
+  private overlay!: Phaser.GameObjects.Sprite;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "enemy_idle");
+    this.setDepth(1);
+    this.overlay = scene.add.sprite(x, y, "lightning_strike");
+    this.overlay.setDepth(2);
+    this.overlay.setVisible(false);
   }
 
   spawn(_player: any, enemySpeed = ENEMY_SPEED) {
@@ -37,6 +42,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
     this.x = x + offset;
     this.y = y + offset;
+    this.overlay.setPosition(this.x, this.y);
 
     // this.setVelocityX(-enemySpeed * Math.cos(this.rotation));
     // this.setVelocityY(-enemySpeed * Math.sin(this.rotation));
@@ -52,19 +58,13 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  die() {
-    if (this.isDying) return;
+  hit() {
+    this.overlay.setVisible(true);
+    this.overlay.play("lightning_strike");
 
-    this.isDying = true;
-
-    this.setVelocity(0, 0);
-    (this.body as Phaser.Physics.Arcade.Body).enable = false;
-    this.setAngle(0);
-
-    this.play("lightning_strike");
-
-    this.once("animationcomplete-lightning_strike", () => {
+    this.overlay.once("animationcomplete-lightning_strike", () => {
       this.health--;
+      this.overlay.setVisible(false);
       if (this.health === 0) this.destroy();
     });
   }
@@ -76,6 +76,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     ) {
       this.destroy();
     }
+    this.overlay.setPosition(this.x, this.y);
   }
 }
 

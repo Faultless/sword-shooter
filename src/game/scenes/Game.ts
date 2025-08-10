@@ -18,7 +18,7 @@ export class Game extends Scene {
   bullets: any;
   bulletCooldown: any;
   enemySpawnCooldown: any;
-  enemies: any;
+  enemies: Phaser.GameObjects.Group;
   loots: Phaser.Physics.Arcade.StaticGroup;
   enemyCount: number = 0;
   killedEnemies: number = 0;
@@ -77,6 +77,7 @@ export class Game extends Scene {
       this,
       400,
       300,
+      scale,
     );
     // this.physics.add.collider(this.player, wallLayer!);
 
@@ -99,7 +100,10 @@ export class Game extends Scene {
       },
     ).on("update", () => { }, this);
 
-    this.input.keyboard?.on("keydown-Z", () => this.player.attack());
+    this.input.keyboard?.on(
+      "keydown-Z",
+      () => this.player.attack(this.enemies),
+    );
     this.input.keyboard?.on("keydown-I", () => this.showInventory());
 
     // Create shooting joystick
@@ -166,7 +170,7 @@ export class Game extends Scene {
       this.enemies,
       (bullet, enemy: Enemy) => {
         bullet.destroy();
-        enemy.die();
+        enemy.hit();
         this.killedEnemies++;
         if (this.killedEnemies % 1 === 0) {
           this.dropLoot(enemy);

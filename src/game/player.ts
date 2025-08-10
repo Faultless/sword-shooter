@@ -1,17 +1,23 @@
-class Player extends Phaser.GameObjects.Sprite {
+import { GameObjects } from "phaser";
+import Enemy from "./enemy";
+
+class Player extends Phaser.Physics.Arcade.Sprite {
   isDying: boolean = false;
   health = 5;
   private weapon!: Phaser.GameObjects.Sprite;
   movKeys: any;
   speed: number = 200;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  constructor(scene: Phaser.Scene, x: number, y: number, scale: number) {
     super(scene, x, y, "player_idle");
 
+    this.setScale(scale);
     scene.add.existing(this);
+    scene.physics.add.existing(this);
     this.play("player_idle");
 
-    this.weapon = scene.add.sprite(x + 30, y - 5, "weapon_sprite");
+    this.weapon = scene.add.sprite(x + 60, y - 5, "weapon_sprite");
+    this.weapon.setScale(scale);
 
     this.movKeys = scene.input.keyboard!.addKeys("W,S,A,D");
 
@@ -29,20 +35,28 @@ class Player extends Phaser.GameObjects.Sprite {
   setPosition(x?: number, y?: number): this {
     super.setPosition(x, y);
     if (this.weapon) {
-      this.weapon.setPosition(this.x + 30, this.y - 5);
+      this.weapon.setPosition(this.x + 60, this.y - 5);
     }
     return this;
   }
 
-  attack() {
+  attack(enemies: Phaser.GameObjects.Group) {
     this.play("thunder_summon");
     this.weapon.play("sword_slash");
 
     this.once("animationcomplete-thunder_summon", () => {
       this.play("player_idle");
     });
+
     this.weapon.once("animationcomplete-sword_slash", () => {
       this.weapon.setTexture("weapon_sprite");
+      const hitEnemies = enemies.getChildren().filter((e: Enemy) => {
+        return Phaser.Math.Distance.Between(this.x, this.y, e.x, e.y) < 100;
+      });
+
+      hitEnemies.forEach((enemy: Enemy) => {
+        enemy.hit();
+      });
     });
   }
 
