@@ -17,6 +17,7 @@ export class Game extends Scene {
   enemyCount: number = 0;
   killedEnemies: number = 0;
   backgroundMusic: any;
+  wallLayer: Phaser.Tilemaps.TilemapLayer;
 
   constructor() {
     super("Game");
@@ -47,14 +48,14 @@ export class Game extends Scene {
     const tileset = map.addTilesetImage("dungeon", "dungeonTiles");
 
     const floorLayer = map.createLayer("Floors", tileset!);
-    const wallLayer = map.createLayer("Walls", tileset!);
+    this.wallLayer = map.createLayer("Walls", tileset!)!;
 
     const scaleX = this.cameras.main.width / map.widthInPixels;
     const scaleY = this.cameras.main.height / map.heightInPixels;
     const scale = Math.max(scaleX, scaleY);
 
     floorLayer?.setScale(scale);
-    wallLayer?.setScale(scale);
+    this.wallLayer?.setScale(scale);
 
     this.physics.world.setBounds(
       0,
@@ -63,7 +64,7 @@ export class Game extends Scene {
       map.heightInPixels * scale,
     );
 
-    wallLayer?.setCollisionByProperty({ collides: true });
+    this.wallLayer?.setCollisionByProperty({ collides: true });
 
     // Create player
     this.player = new Player(
@@ -78,8 +79,8 @@ export class Game extends Scene {
       runChildUpdate: true,
     });
 
-    this.physics.add.collider(this.player, wallLayer!);
-    this.physics.add.collider(this.enemies, wallLayer!);
+    this.physics.add.collider(this.player, this.wallLayer!);
+    this.physics.add.collider(this.enemies, this.wallLayer!);
 
     this.input.keyboard?.on(
       "keydown-Z",
@@ -117,7 +118,13 @@ export class Game extends Scene {
         this.enemyCount++;
         const enemy = this.enemies.get().setActive(true).setVisible(true);
         if (enemy) {
-          enemy.spawn(this.player);
+          let x = 0, y = 0;
+          while (this.wallLayer.getTileAtWorldXY(x, y)) {
+            x = this.cameras.main.width * Math.random(),
+              y = this.cameras.main.height * Math.random();
+          }
+
+          enemy.spawn(x, y);
           this.enemySpawnCooldown = 500;
         }
       }

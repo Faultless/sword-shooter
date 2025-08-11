@@ -10,20 +10,11 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(1);
   }
 
-  spawn(_player: any) {
+  spawn(x: number, y: number) {
     this.setScale(0);
 
-    // Offset the enemy to spawn at a distance from the player
-    let x = 0,
-      y = this.scene.cameras.main.height * Math.random(),
-      offset = 500 * Math.random();
-
-    if (Math.random() > 0.5) {
-      offset = -500 * Math.random();
-      x = this.scene.cameras.main.width;
-    }
-    this.x = x + offset;
-    this.y = y + offset;
+    this.x = x;
+    this.y = y;
 
     this.play("enemy_idle").setScale(0.25);
 
