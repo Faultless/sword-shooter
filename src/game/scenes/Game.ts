@@ -2,7 +2,7 @@ import { Scene } from "phaser";
 import Enemy from "../enemy";
 import Player from "../player";
 
-const MAX_ENEMIES = 8;
+const MAX_ENEMIES = 2;
 export const BULLET_SPEED = 800;
 export const ENEMY_SPEED = 100;
 
@@ -95,6 +95,7 @@ export class Game extends Scene {
     this.physics.add.collider(this.player, this.enemies, () => {
       this.backgroundMusic.stop();
       this.scene.start("GameOver");
+      this.enemyCount = 0;
     });
 
     this.physics.add.overlap(
@@ -132,6 +133,15 @@ export class Game extends Scene {
           this.enemySpawnCooldown = 500;
         }
       }
+    }
+
+    if (this.enemies.countActive(true) === 0) {
+      this.scene.start("Win", {
+        enemiesKilled: this.enemyCount,
+        coinsCollected: this.player.inventory.gold,
+      });
+
+      this.enemyCount = 0;
     }
   }
 

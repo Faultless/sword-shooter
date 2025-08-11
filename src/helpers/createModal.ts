@@ -5,6 +5,7 @@
 const createModal = (
   scene: Phaser.Scene,
   closeModal: Function,
+  modalTitle: string,
 ): Phaser.GameObjects.Container => {
   const container = scene.add.container(
     scene.scale.width / 2,
@@ -16,18 +17,18 @@ const createModal = (
     -scene.scale.height / 2 + 20,
     scene.scale.width - 40,
     scene.scale.height - 40,
-    0xff0000,
+    0x000000,
     0.75,
   ).setOrigin(0).setInteractive();
 
-  const title = new Phaser.GameObjects.Text(scene, 0, -200, "LOOT", {
+  const title = new Phaser.GameObjects.Text(scene, -300, -200, modalTitle, {
     fontSize: "40px",
     color: "#fff",
-  });
+  }).setOrigin(0);
   const closeBtn = new Phaser.GameObjects.Text(scene, 200, -200, "X", {
     fontSize: "24px",
     color: "#fff",
-  }).setOrigin(0.5).setInteractive().on("pointerdown", closeModal);
+  }).setOrigin(0).setInteractive().on("pointerdown", closeModal);
 
   container.add([background, title, closeBtn]);
   return container;

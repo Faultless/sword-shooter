@@ -12,19 +12,19 @@ class Loot extends Phaser.Scene {
     const modal = createModal(this, () => {
       this.scene.stop();
       this.scene.resume("Game");
-    });
+    }, "Power Scroll Found!");
 
-    const option1 = this.add.container(0, 50, [
-      this.add.rectangle(0, 50, 200, 350, 0xffffff),
-      this.add.sprite(10, 10, "bigger_bolt"),
+    const option1 = this.add.container(-250, 50, [
+      this.add.rectangle(50, 50, 200, 350, 0xffffff),
+      this.add.sprite(40, 20, "bigger_bolt"),
     ]).setSize(200, 350).setInteractive().on(
       "pointerdown",
       this.chooseOption1,
       this,
     );
-    const option2 = this.add.container(250, 50, [
-      this.add.rectangle(0, 50, 200, 350, 0xffffff),
-      this.add.sprite(10, 10, "more_bolts"),
+    const option2 = this.add.container(50, 50, [
+      this.add.rectangle(50, 50, 200, 350, 0xffffff),
+      this.add.sprite(40, 20, "more_bolts"),
     ]).setSize(200, 350).setInteractive().on(
       "pointerdown",
       this.chooseOption2,
