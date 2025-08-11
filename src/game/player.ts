@@ -10,6 +10,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   speed: number = 200;
   inventory: Inventory;
   atk = 1;
+  atkNb = 1;
 
   constructor(scene: Phaser.Scene, x: number, y: number, scale: number) {
     super(scene, x, y, "player_idle");
@@ -59,7 +60,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
       });
 
       hitEnemies.forEach((enemy: Enemy) => {
-        enemy.hit(this.atk);
+        enemy.hit(this.atk, this.atkNb);
       });
     });
   }
@@ -68,8 +69,15 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.inventory.gold += amount;
   }
 
-  upgradePower() {
-    this.atk++;
+  upgradePower(power: string) {
+    switch (power) {
+      case "more_bolts":
+        this.atkNb++;
+        return;
+      case "bigger_bolt":
+        this.atk++;
+        return;
+    }
   }
 
   die() {

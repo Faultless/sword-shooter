@@ -19,7 +19,7 @@ class Loot extends Phaser.Scene {
       this.add.sprite(10, 10, "bigger_bolt"),
     ]).setSize(200, 350).setInteractive().on(
       "pointerdown",
-      this.chooseLoot,
+      this.chooseOption1,
       this,
     );
     const option2 = this.add.container(250, 50, [
@@ -27,7 +27,7 @@ class Loot extends Phaser.Scene {
       this.add.sprite(10, 10, "more_bolts"),
     ]).setSize(200, 350).setInteractive().on(
       "pointerdown",
-      this.chooseLoot,
+      this.chooseOption2,
       this,
     );
 
@@ -35,8 +35,14 @@ class Loot extends Phaser.Scene {
     modal.setScale(1);
   }
 
-  chooseLoot() {
-    (this.scene.get("Game") as Game).player.upgradePower();
+  chooseOption1() {
+    (this.scene.get("Game") as Game).player.upgradePower("bigger_bolt");
+    this.scene.stop();
+    this.scene.resume("Game");
+  }
+
+  chooseOption2() {
+    (this.scene.get("Game") as Game).player.upgradePower("more_bolts");
     this.scene.stop();
     this.scene.resume("Game");
   }

@@ -4,14 +4,10 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
   isDying: boolean = false;
   health = 5;
   declare scene: Game;
-  private overlay!: Phaser.GameObjects.Sprite;
 
   constructor(scene: Game, x: number, y: number) {
     super(scene, x, y, "enemy_idle");
     this.setDepth(1);
-    this.overlay = scene.add.sprite(x, y, "lightning_strike");
-    this.overlay.setDepth(2);
-    this.overlay.setVisible(false);
   }
 
   spawn(_player: any) {
@@ -43,7 +39,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
     this.x = x + offset;
     this.y = y + offset;
-    this.overlay.setPosition(this.x, this.y);
 
     this.play("enemy_idle").setScale(0.25);
 
@@ -56,15 +51,22 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  hit(atk: number = 1) {
+  hit(atk: number = 1, atkNb: number = 1) {
     console.log("atk", atk);
-    this.overlay.setVisible(true);
-    this.overlay.play("lightning_strike");
+    Array.from({ length: atkNb }, (_, idx) => {
+      const overlay = this.scene.add.sprite(
+        this.x + idx * 10,
+        this.y,
+        "lightning_strike",
+      ).setDepth(2);
 
-    this.overlay.once("animationcomplete-lightning_strike", () => {
-      this.health = Math.max(0, this.health - atk);
-      this.overlay.setVisible(false);
-      if (this.health === 0) this.die();
+      overlay.play("lightning_strike");
+
+      overlay.once("animationcomplete-lightning_strike", () => {
+        this.health = Math.max(0, this.health - atk);
+        if (this.health === 0) this.die();
+        overlay.destroy();
+      });
     });
   }
 
@@ -95,7 +97,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     ) {
       this.destroy();
     }
-    this.overlay.setPosition(this.x, this.y);
   }
 }
 
