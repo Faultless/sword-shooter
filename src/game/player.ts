@@ -25,24 +25,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.weapon.setScale(scale);
 
     this.movKeys = scene.input.keyboard!.addKeys("W,S,A,D");
-
-    // this.play("thunder_summon");
-
-    // scene.tweens.add({
-    //   targets: this,
-    //   scaleX: 1,
-    //   scaleY: 1,
-    //   ease: "Sine.easeInOut",
-    //   duration: 150,
-    // });
   }
-  // Override setPosition to move weapon with player
-  setPosition(x?: number, y?: number): this {
-    super.setPosition(x, y);
+  preUpdate(time: number, delta: number) {
+    super.preUpdate(time, delta);
     if (this.weapon) {
       this.weapon.setPosition(this.x + 60, this.y - 5);
     }
-    return this;
   }
 
   attack(enemies: Phaser.GameObjects.Group) {
@@ -98,17 +86,15 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   update() {
-    let velocityX = 0, velocityY = 0;
+    let velocityX = 0,
+      velocityY = 0;
 
     if (this.movKeys.W.isDown) velocityY = -this.speed;
     if (this.movKeys.A.isDown) velocityX = -this.speed;
     if (this.movKeys.S.isDown) velocityY = this.speed;
     if (this.movKeys.D.isDown) velocityX = this.speed;
 
-    this.setPosition(
-      this.x + velocityX * (1 / 60),
-      this.y + velocityY * (1 / 60),
-    );
+    this.setVelocity(velocityX, velocityY);
   }
 }
 

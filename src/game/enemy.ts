@@ -13,20 +13,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
   spawn(_player: any) {
     this.setScale(0);
 
-    // Get canvas center
-    const centerX = this.scene.cameras.main.width / 2;
-    const centerY = this.scene.cameras.main.height / 2;
-    // Calculate angle from object to center
-    const angleToCenter = Phaser.Math.Angle.Between(
-      this.x,
-      this.y,
-      centerX,
-      centerY,
-    );
-
-    // Convert to degrees and set angle
-    this.setAngle(Phaser.Math.RadToDeg(angleToCenter) + 135);
-
     // Offset the enemy to spawn at a distance from the player
     let x = 0,
       y = this.scene.cameras.main.height * Math.random(),
@@ -35,7 +21,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     if (Math.random() > 0.5) {
       offset = -500 * Math.random();
       x = this.scene.cameras.main.width;
-      this.setAngle(Phaser.Math.RadToDeg(angleToCenter - 45));
     }
     this.x = x + offset;
     this.y = y + offset;

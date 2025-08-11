@@ -136,7 +136,7 @@
         {
          "columns":12,
          "firstgid":1,
-         "image":"..\/..\/..\/..\/Downloads\/kenney_tiny-dungeon\/Tilemap\/tilemap.png",
+         "image":"tilemap.png",
          "imageheight":186,
          "imagewidth":203,
          "margin":0,
