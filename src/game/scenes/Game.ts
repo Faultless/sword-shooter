@@ -119,7 +119,11 @@ export class Game extends Scene {
         const enemy = this.enemies.get().setActive(true).setVisible(true);
         if (enemy) {
           let x = 0, y = 0;
-          while (this.wallLayer.getTileAtWorldXY(x, y)) {
+          while (
+            this.wallLayer.getTileAtWorldXY(x, y) ||
+            Phaser.Math.Within(x, this.player.x, 100) ||
+            Phaser.Math.Within(y, this.player.y, 100)
+          ) {
             x = this.cameras.main.width * Math.random(),
               y = this.cameras.main.height * Math.random();
           }
