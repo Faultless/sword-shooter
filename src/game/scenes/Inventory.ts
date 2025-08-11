@@ -1,3 +1,5 @@
+import { Game } from "./Game";
+
 class InventoryScene extends Phaser.Scene {
   constructor() {
     super({ key: "Inventory" });
@@ -34,7 +36,7 @@ class InventoryScene extends Phaser.Scene {
     const coins = this.add.text(
       100,
       -150,
-      `Gold: ${this.scene.get("Game").player.inventory.gold}`,
+      `Gold: ${(this.scene.get("Game") as Game).player.inventory.gold}`,
       {
         fontSize: "32px",
       },

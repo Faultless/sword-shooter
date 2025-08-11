@@ -10,7 +10,7 @@ export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
   background: Phaser.GameObjects.Image;
   msg_text: Phaser.GameObjects.Text;
-  private player: Player;
+  player: Player;
   enemySpawnCooldown: any;
   enemies: Phaser.GameObjects.Group;
   loots: Phaser.Physics.Arcade.StaticGroup;
@@ -131,8 +131,12 @@ export class Game extends Scene {
 
   collectLoot(player: Player, loot: any) {
     player.lootCoins(loot.coins ?? 1);
+    console.log("loot", loot.getData("name"));
+    if (loot.getData("name") !== "coin") {
+      this.scene.pause();
+      this.scene.launch("Loot");
+    }
+
     loot.destroy();
-    this.scene.pause();
-    this.scene.launch("Loot");
   }
 }

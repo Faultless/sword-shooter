@@ -87,6 +87,8 @@ export class Preloader extends Scene {
     this.load.image("logo", "logo.png");
     this.load.image("joystick", "joystick.png");
     this.load.image("bullet", "bullet.png");
+    this.load.image("more_bolts", "more_bolts.png");
+    this.load.image("bigger_bolt", "bigger_bolt.png");
   }
 
   create() {

@@ -56,12 +56,13 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  hit() {
+  hit(atk: number = 1) {
+    console.log("atk", atk);
     this.overlay.setVisible(true);
     this.overlay.play("lightning_strike");
 
     this.overlay.once("animationcomplete-lightning_strike", () => {
-      this.health--;
+      this.health = Math.max(0, this.health - atk);
       this.overlay.setVisible(false);
       if (this.health === 0) this.die();
     });
@@ -73,7 +74,17 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   dropLoot() {
-    const loot = this.scene.add.rectangle(this.x, this.y, 20, 20, 0xffd700);
+    const isCoin = Math.random() < 0.3;
+
+    const loot = isCoin
+      ? this.scene.add.rectangle(this.x, this.y, 20, 20, 0xffd700).setData(
+        "name",
+        "coin",
+      )
+      : this.scene.add.rectangle(this.x, this.y, 20, 34, 0xff00a0).setData(
+        "name",
+        "scroll",
+      );
     this.scene.loots.add(loot);
   }
 
