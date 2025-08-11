@@ -63,10 +63,10 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
       overlay.play("lightning_strike");
 
       overlay.once("animationcomplete-lightning_strike", () => {
-        this.health = Math.max(0, this.health - atk);
         overlay.destroy();
       });
     });
+    this.health = Math.max(0, this.health - (atkNb * atk));
     if (this.health === 0) this.die();
   }
 
