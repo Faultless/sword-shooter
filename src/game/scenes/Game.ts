@@ -9,7 +9,7 @@ export const ENEMY_SPEED = 100;
 
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
-  background: Phaser.GameObjects.Image;
+  background: Phaser.GameObjects.Rectangle;
   msg_text: Phaser.GameObjects.Text;
   player: Player;
   enemySpawnCooldown: any;
@@ -37,12 +37,14 @@ export class Game extends Scene {
 
     this.backgroundMusic.play();
 
-    this.background = this.add.image(
-      this.cameras.main.width / 2,
-      this.cameras.main.height / 2,
-      "background",
+    this.background = this.add.rectangle(
+      0,
+      0,
+      this.cameras.main.width,
+      this.cameras.main.height,
+      0x000000,
     );
-    this.background.setOrigin(0.5, 0.5);
+    this.background.setOrigin(0, 0);
     this.background.setScale(
       this.cameras.main.width / this.background.width,
       this.cameras.main.height / this.background.height,
