@@ -21,6 +21,7 @@ export class Game extends Scene {
   wallLayer: Phaser.Tilemaps.TilemapLayer;
   spawnLayer: Phaser.Tilemaps.TilemapLayer;
   hud: HUD;
+  scaleFactor: number;
 
   constructor() {
     super("Game");
@@ -61,17 +62,17 @@ export class Game extends Scene {
 
     const scaleX = this.cameras.main.width / map.widthInPixels;
     const scaleY = this.cameras.main.height / map.heightInPixels;
-    const scale = Math.max(scaleX, scaleY);
+    this.scaleFactor = Math.max(scaleX, scaleY);
 
-    floorLayer?.setScale(scale);
-    this.wallLayer?.setScale(scale);
-    this.spawnLayer?.setScale(scale);
+    floorLayer?.setScale(this.scaleFactor);
+    this.wallLayer?.setScale(this.scaleFactor);
+    this.spawnLayer?.setScale(this.scaleFactor);
 
     this.physics.world.setBounds(
       0,
       0,
-      map.widthInPixels * scale,
-      map.heightInPixels * scale,
+      map.widthInPixels * this.scaleFactor,
+      map.heightInPixels * this.scaleFactor,
     );
 
     this.wallLayer?.setCollisionByProperty({ collides: true });
@@ -81,7 +82,7 @@ export class Game extends Scene {
       this,
       400,
       300,
-      scale,
+      this.scaleFactor,
     );
 
     this.enemies = this.physics.add.group({
@@ -136,15 +137,13 @@ export class Game extends Scene {
         const enemy = this.enemies.get().setActive(true).setVisible(true);
         if (enemy) {
           let x = 0, y = 0;
-          while (
-            this.wallLayer.getTileAtWorldXY(x, y) ||
-            Phaser.Math.Within(x, this.player.x, 100) ||
-            Phaser.Math.Within(y, this.player.y, 100)
-          ) {
-            x = this.cameras.main.width * Math.random(),
-              y = this.cameras.main.height * Math.random();
-          }
 
+          const tile = this.spawnLayer.findTile((tile) =>
+            tile.properties.spawn === true
+          )!;
+
+          x = tile.pixelX * this.scaleFactor,
+            y = tile.pixelY * this.scaleFactor;
           enemy.spawn(x, y);
           this.enemySpawnCooldown = 500;
         }
