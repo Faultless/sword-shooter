@@ -63,8 +63,16 @@ export class Preloader extends Scene {
       frameHeight: 64,
     });
     this.load.spritesheet("enemy_idle", "enemy_idle.png", {
-      frameWidth: 128,
-      frameHeight: 128,
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+    this.load.spritesheet("enemy_hit", "enemy_hit.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+    this.load.spritesheet("enemy_die", "enemy_death.png", {
+      frameWidth: 16,
+      frameHeight: 16,
     });
     this.load.spritesheet("thunder_summon", "thunder_summon.png", {
       frameWidth: 16,
@@ -108,10 +116,28 @@ export class Preloader extends Scene {
       key: "enemy_idle",
       frames: this.anims.generateFrameNumbers("enemy_idle", {
         start: 0,
+        end: 3,
+      }),
+      frameRate: 5,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: "enemy_hit",
+      frames: this.anims.generateFrameNumbers("enemy_hit", {
+        start: 0,
+        end: 2,
+      }),
+      frameRate: 9,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: "enemy_die",
+      frames: this.anims.generateFrameNumbers("enemy_die", {
+        start: 0,
         end: 7,
       }),
       frameRate: 9,
-      repeat: -1,
+      repeat: 0,
     });
     this.anims.create({
       key: "sword_idle",

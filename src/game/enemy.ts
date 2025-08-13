@@ -20,15 +20,15 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     this.scene.tweens.add({
       targets: this,
-      scaleX: 0.5,
-      scaleY: 0.5,
+      scaleX: 2,
+      scaleY: 2,
       ease: "Sine.easeInOut",
       duration: 150,
     });
   }
 
   hit(atk: number = 1, atkNb: number = 1) {
-    console.log("atk", atk);
+    this.play("enemy_hit");
     Array.from({ length: atkNb }, (_, idx) => {
       const overlay = this.scene.add.sprite(
         this.x + idx * 10,
@@ -40,6 +40,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
       overlay.once("animationcomplete-lightning_strike", () => {
         overlay.destroy();
+        if (!this.isDying) this.play("enemy_idle");
       });
     });
     this.health = Math.max(0, this.health - (atkNb * atk));
@@ -47,8 +48,12 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   die() {
-    this.dropLoot();
-    this.destroy();
+    this.isDying = true;
+    this.play("enemy_die");
+    this.once("animationcomplete-enemy_die", () => {
+      this.dropLoot();
+      this.destroy();
+    });
   }
 
   dropLoot() {
