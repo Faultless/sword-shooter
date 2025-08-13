@@ -1,6 +1,7 @@
 import { Scene } from "phaser";
 import Enemy from "../enemy";
 import Player from "../player";
+import HUD from "../hud";
 
 const MAX_ENEMIES = 2;
 export const BULLET_SPEED = 800;
@@ -18,12 +19,15 @@ export class Game extends Scene {
   killedEnemies: number = 0;
   backgroundMusic: any;
   wallLayer: Phaser.Tilemaps.TilemapLayer;
+  hud: HUD;
 
   constructor() {
     super("Game");
   }
 
   create() {
+    this.hud = new HUD(this);
+
     // load music loop
     this.backgroundMusic = this.sound.add("bgm", {
       loop: true,
