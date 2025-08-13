@@ -90,6 +90,10 @@ export class Preloader extends Scene {
       frameWidth: 16,
       frameHeight: 16,
     });
+    this.load.spritesheet("player_death", "player_death.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
 
     this.load.image("weapon_sprite", "weapon.png");
     this.load.image("logo", "logo.png");
@@ -111,6 +115,15 @@ export class Preloader extends Scene {
       }),
       frameRate: 9,
       repeat: -1,
+    });
+    this.anims.create({
+      key: "player_death",
+      frames: this.anims.generateFrameNumbers("player_death", {
+        start: 0,
+        end: 12,
+      }),
+      frameRate: 12,
+      repeat: 0,
     });
     this.anims.create({
       key: "enemy_idle",

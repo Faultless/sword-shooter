@@ -46,6 +46,7 @@ export class Game extends Scene {
       this.cameras.main.width / this.background.width,
       this.cameras.main.height / this.background.height,
     );
+    this.background.setScrollFactor(0);
 
     // Create Map
     const map = this.make.tilemap({ key: "dungeonMap" });
@@ -86,6 +87,8 @@ export class Game extends Scene {
     this.physics.add.collider(this.player, this.wallLayer!);
     this.physics.add.collider(this.enemies, this.wallLayer!);
 
+    this.cameras.main.startFollow(this.player, true);
+
     this.input.keyboard?.on(
       "keydown-Z",
       () => this.player.attack(this.enemies),
@@ -98,8 +101,12 @@ export class Game extends Scene {
 
     this.physics.add.collider(this.player, this.enemies, () => {
       this.backgroundMusic.stop();
-      this.scene.start("GameOver");
-      this.enemyCount = 0;
+      this.player.play("player_death");
+
+      this.player.once("animationcomplete-player_death", () => {
+        this.scene.start("GameOver");
+        this.enemyCount = 0;
+      });
     });
 
     this.physics.add.overlap(
