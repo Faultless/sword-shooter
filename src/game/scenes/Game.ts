@@ -19,6 +19,7 @@ export class Game extends Scene {
   killedEnemies: number = 0;
   backgroundMusic: any;
   wallLayer: Phaser.Tilemaps.TilemapLayer;
+  spawnLayer: Phaser.Tilemaps.TilemapLayer;
   hud: HUD;
 
   constructor() {
@@ -54,6 +55,7 @@ export class Game extends Scene {
 
     const floorLayer = map.createLayer("Floors", tileset!);
     this.wallLayer = map.createLayer("Walls", tileset!)!;
+    this.spawnLayer = map.createLayer("Spawn", tileset!)!;
 
     const scaleX = this.cameras.main.width / map.widthInPixels;
     const scaleY = this.cameras.main.height / map.heightInPixels;
@@ -61,6 +63,7 @@ export class Game extends Scene {
 
     floorLayer?.setScale(scale);
     this.wallLayer?.setScale(scale);
+    this.spawnLayer?.setScale(scale);
 
     this.physics.world.setBounds(
       0,
