@@ -8,6 +8,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
   constructor(scene: Game, x: number, y: number) {
     super(scene, x, y, "enemy_idle");
     this.setDepth(1);
+    scene.physics.add.existing(this);
   }
 
   spawn(x: number, y: number) {

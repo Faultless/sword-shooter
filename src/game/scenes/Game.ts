@@ -3,7 +3,7 @@ import Enemy from "../enemy";
 import Player from "../player";
 import HUD from "../hud";
 
-const MAX_ENEMIES = 2;
+const MAX_ENEMIES = 25;
 export const BULLET_SPEED = 800;
 export const ENEMY_SPEED = 100;
 
@@ -22,6 +22,9 @@ export class Game extends Scene {
   spawnLayer: Phaser.Tilemaps.TilemapLayer;
   hud: HUD;
   scaleFactor: number;
+  private readonly range = 100;
+  private readonly speed = 50; // movement speed in px/sec
+  private startPositions: Phaser.Math.Vector2[] = [];
 
   constructor() {
     super("Game");
@@ -122,33 +125,40 @@ export class Game extends Scene {
       undefined,
       this,
     );
+    this.spawnLayer.forEachTile((tile) => {
+      if (tile.properties.spawn === true) {
+        if (this.enemyCount < MAX_ENEMIES) {
+          this.enemyCount++;
+          const enemy = this.enemies.get().setActive(true).setVisible(true);
+          if (enemy) {
+            let x = tile.pixelX * this.scaleFactor,
+              y = tile.pixelY * this.scaleFactor;
+            enemy.spawn(x, y);
+            this.startPositions.push(new Phaser.Math.Vector2(x, y));
+
+            this.setRandomVelocity(enemy);
+          }
+        }
+      }
+    });
   }
 
   update(_time: number, delta: number) {
     this.player.update();
 
-    if (this.enemySpawnCooldown > 0) {
-      this.enemySpawnCooldown -= delta;
-    }
-
-    if (this.enemySpawnCooldown <= 0) {
-      if (this.enemyCount <= MAX_ENEMIES) {
-        this.enemyCount++;
-        const enemy = this.enemies.get().setActive(true).setVisible(true);
-        if (enemy) {
-          let x = 0, y = 0;
-
-          const tile = this.spawnLayer.findTile((tile) =>
-            tile.properties.spawn === true
-          )!;
-
-          x = tile.pixelX * this.scaleFactor,
-            y = tile.pixelY * this.scaleFactor;
-          enemy.spawn(x, y);
-          this.enemySpawnCooldown = 500;
+    this.enemies.getChildren().forEach(
+      (e: Phaser.Physics.Arcade.Sprite, i: number) => {
+        const start = this.startPositions[i];
+        const dist = Phaser.Math.Distance.Between(start.x, start.y, e.x, e.y);
+        if (dist > this.range) {
+          this.setRandomVelocity(e);
         }
-      }
-    }
+
+        if (Phaser.Math.Between(0, 100) < 1) {
+          this.setRandomVelocity(e);
+        }
+      },
+    );
 
     if (this.enemies.countActive(true) === 0) {
       this.scene.start("Win", {
@@ -158,6 +168,14 @@ export class Game extends Scene {
 
       this.enemyCount = 0;
     }
+  }
+
+  private setRandomVelocity(sprite: Phaser.Physics.Arcade.Sprite) {
+    const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+    sprite.setVelocity(
+      Math.cos(angle) * this.speed,
+      Math.sin(angle) * this.speed,
+    );
   }
 
   showInventory() {
