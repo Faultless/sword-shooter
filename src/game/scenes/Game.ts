@@ -2,6 +2,7 @@ import { Scene } from "phaser";
 import Enemy from "../enemy";
 import Player from "../player";
 import HUD from "../hud";
+import Boss from "../boss";
 
 const MAX_ENEMIES = 25;
 export const BULLET_SPEED = 800;
@@ -12,6 +13,7 @@ export class Game extends Scene {
   background: Phaser.GameObjects.Rectangle;
   msg_text: Phaser.GameObjects.Text;
   player: Player;
+  boss: Boss;
   enemySpawnCooldown: any;
   enemies: Phaser.GameObjects.Group;
   loots: Phaser.Physics.Arcade.StaticGroup;
@@ -22,6 +24,7 @@ export class Game extends Scene {
   spawnLayer: Phaser.Tilemaps.TilemapLayer;
   hud: HUD;
   scaleFactor: number;
+  chargeCD = 500;
   private readonly range = 100;
   private readonly speed = 50; // movement speed in px/sec
   private startPositions: Phaser.Math.Vector2[] = [];
@@ -80,11 +83,15 @@ export class Game extends Scene {
 
     this.wallLayer?.setCollisionByProperty({ collides: true });
 
+    // Spawn Boss
+    // x, y should come from spawnLayer
+    this.boss = new Boss(this, 1800, 150, this.scaleFactor);
+
     // Create player
     this.player = new Player(
       this,
-      400,
-      300,
+      1400,
+      150,
       this.scaleFactor,
     );
 
@@ -93,6 +100,7 @@ export class Game extends Scene {
       runChildUpdate: true,
     });
 
+    this.physics.add.collider(this.boss, this.wallLayer!);
     this.physics.add.collider(this.player, this.wallLayer!);
     this.physics.add.collider(this.enemies, this.wallLayer!);
 
@@ -145,6 +153,19 @@ export class Game extends Scene {
 
   update(_time: number, delta: number) {
     this.player.update();
+    this.chargeCD -= delta;
+    if (
+      Phaser.Math.Distance.Between(
+        this.player.x,
+        this.player.y,
+        this.boss.x,
+        this.boss.y,
+      ) < 300 &&
+      this.chargeCD <= 0
+    ) {
+      this.chargeCD = 5000;
+      this.boss.charge(this.player);
+    }
 
     this.enemies.getChildren().forEach(
       (e: Phaser.Physics.Arcade.Sprite, i: number) => {
