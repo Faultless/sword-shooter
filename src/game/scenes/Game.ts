@@ -4,7 +4,7 @@ import Player from "../player";
 import HUD from "../hud";
 import Boss from "../boss";
 
-const MAX_ENEMIES = 25;
+const MAX_ENEMIES = 75;
 export const BULLET_SPEED = 800;
 export const ENEMY_SPEED = 100;
 
