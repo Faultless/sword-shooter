@@ -4,7 +4,7 @@ import { Game } from "./scenes/Game";
 
 class Boss extends Phaser.Physics.Arcade.Sprite {
   private isDying: boolean = false;
-  health = 15;
+  health = 5;
   declare scene: Game;
 
   constructor(scene: Phaser.Scene, x: number, y: number, scale: number) {
@@ -33,7 +33,8 @@ class Boss extends Phaser.Physics.Arcade.Sprite {
       });
     });
     this.health = Math.max(0, this.health - (atkNb * atk));
-    if (this.health === 0) this.die();
+    console.log("bosds health", this.health);
+    if (this.health == 0) this.die();
   }
 
   charge(player: Player) {
@@ -102,8 +103,10 @@ class Boss extends Phaser.Physics.Arcade.Sprite {
     this.isDying = true;
     this.play("boss_die");
     this.once("animationcomplete-boss_die", () => {
-      this.dropLoot();
-      this.destroy();
+      this.scene.scene.pause();
+      // this.dropLoot();
+      // this.destroy();
+      this.scene.scene.start("Win");
     });
   }
 

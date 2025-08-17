@@ -94,6 +94,10 @@ export class Preloader extends Scene {
       frameWidth: 128,
       frameHeight: 128,
     });
+    this.load.spritesheet("boss_die", "boss_die.png", {
+      frameWidth: 128,
+      frameHeight: 128,
+    });
     this.load.spritesheet("player_death", "player_death.png", {
       frameWidth: 16,
       frameHeight: 16,
@@ -137,6 +141,15 @@ export class Preloader extends Scene {
       }),
       frameRate: 12,
       repeat: -1,
+    });
+    this.anims.create({
+      key: "boss_die",
+      frames: this.anims.generateFrameNumbers("boss_die", {
+        start: 0,
+        end: 14,
+      }),
+      frameRate: 12,
+      repeat: 0,
     });
     this.anims.create({
       key: "enemy_idle",

@@ -1,16 +1,21 @@
 import { GameObjects } from "phaser";
 import Enemy from "./enemy";
 import Inventory from "./inventory";
+import { Game } from "./scenes/Game";
+import Boss from "./boss";
 
 class Player extends Phaser.Physics.Arcade.Sprite {
   isDying: boolean = false;
-  health = 5;
+  health = 50;
   private weapon!: Phaser.GameObjects.Sprite;
   movKeys: any;
   speed: number = 200;
   inventory: Inventory;
   atk = 1;
   atkNb = 1;
+  isHit: boolean = false;
+
+  declare scene: Game;
 
   constructor(scene: Phaser.Scene, x: number, y: number, scale: number) {
     super(scene, x, y, "player_idle");
@@ -33,7 +38,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  attack(enemies: Phaser.GameObjects.Group) {
+  attack(enemies: Phaser.GameObjects.Group, boss: Boss) {
     this.play("thunder_summon");
     this.weapon.play("sword_slash");
 
@@ -50,7 +55,33 @@ class Player extends Phaser.Physics.Arcade.Sprite {
       hitEnemies.forEach((enemy: Enemy) => {
         enemy.hit(this.atk, this.atkNb);
       });
+
+      if (Phaser.Math.Distance.Between(this.x, this.y, boss.x, boss.y) < 100) {
+        boss.hit(this.atk, this.atkNb);
+      }
     });
+  }
+
+  hit(dmg: number = 1) {
+    if (this.isHit) return;
+
+    this.isHit = true;
+    this.health -= dmg;
+
+    if (this.health <= 0) {
+      this.die();
+    } else {
+      this.scene.tweens.add({
+        targets: this,
+        alpha: 0.5,
+        duration: 200,
+        yoyo: true,
+        onComplete: () => {
+          this.isHit = false;
+          this.setAlpha(1);
+        },
+      });
+    }
   }
 
   lootCoins(amount: number) {
@@ -76,12 +107,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     // this.setVelocity(0, 0);
     // (this.body as Phaser.Physics.Arcade.Body).enable = false;
     this.setAngle(0);
+    this.play("player_death");
 
-    this.play("lightning_strike");
-
-    this.once("animationcomplete-lightning_strike", () => {
-      this.health--;
-      if (this.health === 0) this.destroy();
+    this.once("animationcomplete-player_death", () => {
+      this.scene.scene.start("GameOver");
+      this.scene.enemyCount = 0;
     });
   }
 

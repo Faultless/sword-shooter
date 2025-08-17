@@ -4,7 +4,7 @@ import Player from "../player";
 import HUD from "../hud";
 import Boss from "../boss";
 
-const MAX_ENEMIES = 75;
+const MAX_ENEMIES = 125;
 export const BULLET_SPEED = 800;
 export const ENEMY_SPEED = 100;
 
@@ -90,7 +90,7 @@ export class Game extends Scene {
     // Create player
     this.player = new Player(
       this,
-      1400,
+      100,
       150,
       this.scaleFactor,
     );
@@ -108,7 +108,7 @@ export class Game extends Scene {
 
     this.input.keyboard?.on(
       "keydown-Z",
-      () => this.player.attack(this.enemies),
+      () => this.player.attack(this.enemies, this.boss),
     );
     this.input.keyboard?.on("keydown-I", () => this.showInventory());
 
@@ -116,15 +116,25 @@ export class Game extends Scene {
 
     this.enemySpawnCooldown = 0;
 
-    this.physics.add.collider(this.player, this.enemies, () => {
-      this.backgroundMusic.stop();
-      this.player.play("player_death");
+    this.physics.add.collider(
+      this.player,
+      this.boss,
+      () => {
+        this.player.hit(2);
+      },
+      () => !this.player.isHit,
+      this,
+    );
 
-      this.player.once("animationcomplete-player_death", () => {
-        this.scene.start("GameOver");
-        this.enemyCount = 0;
-      });
-    });
+    this.physics.add.collider(
+      this.player,
+      this.enemies,
+      () => {
+        this.player.hit();
+      },
+      () => !this.player.isHit,
+      this,
+    );
 
     this.physics.add.overlap(
       this.player,

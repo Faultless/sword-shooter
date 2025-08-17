@@ -35,8 +35,8 @@ export class Win extends Scene {
       this.cameras.main.height / 2,
       `Level Completed!
 
-Coins Collected: ${this.stats.coinsCollected}
-Enemies Killed: ${this.stats.enemiesKilled}
+Coins Collected: ${this.stats.coinsCollected ?? 0}
+Enemies Killed: ${this.stats.enemiesKilled ?? 0}
 `,
       {
         fontFamily: "Arial Black",
