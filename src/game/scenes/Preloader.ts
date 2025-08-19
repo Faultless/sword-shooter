@@ -55,6 +55,7 @@ export class Preloader extends Scene {
 
     this.load.audio("bgm", "dungeon.mp3");
 
+    this.load.image("damageTiles", "damage_tilemap.png");
     this.load.image("dungeonTiles", "tilemap.png");
     this.load.tilemapTiledJSON("dungeonMap", "dungeon_map.tmj");
 

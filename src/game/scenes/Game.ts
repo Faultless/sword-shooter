@@ -3,6 +3,7 @@ import Enemy from "../enemy";
 import Player from "../player";
 import HUD from "../hud";
 import Boss from "../boss";
+import TilemapState, { TileState } from "../../helpers/tilemapState";
 
 const MAX_ENEMIES = 125;
 export const BULLET_SPEED = 800;
@@ -22,12 +23,14 @@ export class Game extends Scene {
   backgroundMusic: any;
   wallLayer: Phaser.Tilemaps.TilemapLayer;
   spawnLayer: Phaser.Tilemaps.TilemapLayer;
+  damageLayer: Phaser.Tilemaps.TilemapLayer;
   hud: HUD;
   scaleFactor: number;
   chargeCD = 500;
   private readonly range = 100;
   private readonly speed = 50; // movement speed in px/sec
   private startPositions: Phaser.Math.Vector2[] = [];
+  private tilemapState!: TilemapState;
 
   constructor() {
     super("Game");
@@ -61,7 +64,9 @@ export class Game extends Scene {
     // Create Map
     const map = this.make.tilemap({ key: "dungeonMap" });
     const tileset = map.addTilesetImage("dungeon", "dungeonTiles");
+    const damageTileset = map.addTilesetImage("damage", "damageTiles");
 
+    this.damageLayer = map.createLayer("Damage", damageTileset!)!;
     const floorLayer = map.createLayer("Floors", tileset!);
     this.wallLayer = map.createLayer("Walls", tileset!)!;
     this.spawnLayer = map.createLayer("Spawn", tileset!)!;
@@ -70,9 +75,17 @@ export class Game extends Scene {
     const scaleY = this.cameras.main.height / map.heightInPixels;
     this.scaleFactor = Math.max(scaleX, scaleY);
 
+    this.damageLayer?.setScale(this.scaleFactor);
     floorLayer?.setScale(this.scaleFactor);
     this.wallLayer?.setScale(this.scaleFactor);
     this.spawnLayer?.setScale(this.scaleFactor);
+
+    this.damageLayer?.fill(0);
+    this.damageLayer?.setDepth(2);
+    this.tilemapState = new TilemapState(
+      this.damageLayer?.width ?? 16 / 16,
+      this.damageLayer?.height ?? 16 / 16,
+    );
 
     this.physics.world.setBounds(
       0,
@@ -108,7 +121,17 @@ export class Game extends Scene {
 
     this.input.keyboard?.on(
       "keydown-Z",
-      () => this.player.attack(this.enemies, this.boss),
+      () => {
+        const worldX = this.player.x + 60;
+        const worldY = this.player.y;
+        const tile = this.damageLayer.getTileAtWorldXY(worldX, worldY);
+        if (!tile) return;
+
+        const { x, y } = tile;
+        this.tilemapState.damageTile(y, x); // row=y, col=x
+        this.updateTileVisual(x, y);
+        this.player.attack(this.enemies, this.boss);
+      },
     );
     this.input.keyboard?.on("keydown-I", () => this.showInventory());
 
@@ -161,9 +184,33 @@ export class Game extends Scene {
     });
   }
 
+  /** Update the tile’s appearance based on its damage state */
+  private updateTileVisual(col: number, row: number) {
+    const state = this.tilemapState.getTileState(row, col);
+    if (state === null) return;
+
+    // Map states to tileset indices (you define these in your tileset image)
+    const stateToTileIndex: Record<TileState, number> = {
+      0: 499, // undamaged tile graphic
+      1: 500, // slightly damaged
+      2: 501, // very damaged
+      3: 502, // destroyed
+    };
+
+    const tileIndex = stateToTileIndex[state];
+    this.damageLayer.putTileAt(tileIndex, col, row);
+  }
+
   update(_time: number, delta: number) {
     this.player.update();
     this.chargeCD -= delta;
+
+    const playerTile = this.tilemapState.getTileState(
+      Math.round(this.player.x / this.scaleFactor / 16),
+      Math.round(this.player.y / this.scaleFactor / 16),
+    );
+    if (playerTile === 3) this.player.die();
+
     if (
       Phaser.Math.Distance.Between(
         this.player.x,

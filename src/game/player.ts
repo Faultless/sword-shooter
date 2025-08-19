@@ -22,12 +22,14 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.inventory = new Inventory(scene);
     this.setScale(scale);
+    this.setDepth(3);
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.play("player_idle");
 
     this.weapon = scene.add.sprite(x + 60, y - 5, "weapon_sprite");
     this.weapon.setScale(scale);
+    this.weapon.setDepth(3);
 
     this.movKeys = scene.input.keyboard!.addKeys("W,S,A,D");
   }
