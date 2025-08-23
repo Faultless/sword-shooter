@@ -4,10 +4,24 @@ import Player from "../player";
 import HUD from "../hud";
 import Boss from "../boss";
 import TilemapState, { TileState } from "../../helpers/tilemapState";
+import DialogueBubble, { Orientation } from "../DialogueBubble";
 
 const MAX_ENEMIES = 125;
 export const BULLET_SPEED = 800;
 export const ENEMY_SPEED = 100;
+
+const DIALOGUES = [
+  {
+    avatar: "hero",
+    dialogue: `
+Ow.. Where the hell am I? Feels like a truck ran me over..
+Is this.. some kind of dungeon cell? It's giving me the creeps.. 
+`,
+  },
+  { avatar: "hero", dialogue: "!! What was that noise??" },
+  { avatar: "enemy", dialogue: "*AUUUGH*" },
+  { avatar: "hero", dialogue: "I have to get the hell out of here. Fast." },
+];
 
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
@@ -27,16 +41,20 @@ export class Game extends Scene {
   hud: HUD;
   scaleFactor: number;
   chargeCD = 500;
+  introDialogue: DialogueBubble;
   private readonly range = 100;
   private readonly speed = 50; // movement speed in px/sec
   private startPositions: Phaser.Math.Vector2[] = [];
   private tilemapState!: TilemapState;
+  private currentStoryIdx = 0;
 
   constructor() {
     super("Game");
   }
 
   create() {
+    this.introScene();
+
     this.hud = new HUD(this);
 
     // load music loop
@@ -60,6 +78,7 @@ export class Game extends Scene {
       this.cameras.main.height / this.background.height,
     );
     this.background.setScrollFactor(0);
+    this.background.setDepth(-1);
 
     // Create Map
     const map = this.make.tilemap({ key: "dungeonMap" });
@@ -134,6 +153,20 @@ export class Game extends Scene {
       },
     );
     this.input.keyboard?.on("keydown-I", () => this.showInventory());
+    this.input.keyboard?.on(
+      "keydown-E",
+      () => {
+        if (this.currentStoryIdx === DIALOGUES.length - 1) {
+          this.introDialogue.destroy();
+          return;
+        }
+        this.goNext(++this.currentStoryIdx);
+      },
+    );
+    this.input.keyboard?.on("keydown-Q", () => {
+      if (this.currentStoryIdx === 0) return;
+      this.goNext(--this.currentStoryIdx);
+    });
 
     this.loots = this.physics.add.staticGroup();
 
@@ -182,6 +215,35 @@ export class Game extends Scene {
         }
       }
     });
+  }
+
+  goNext(idx: number) {
+    this.introDialogue.setAvatar(DIALOGUES[idx].avatar);
+    this.introDialogue.setDialogue(DIALOGUES[idx].dialogue);
+  }
+
+  introScene() {
+    this.introDialogue = new DialogueBubble(
+      this,
+      0,
+      this.cameras.main.height,
+      this.cameras.main.width,
+      this.cameras.main.height,
+      Orientation.LEFT,
+      // this.goNext.bind(this),
+    );
+
+    this.introDialogue.setDialogue(DIALOGUES[0].dialogue);
+    this.introDialogue.setAvatar(DIALOGUES[0].avatar);
+
+    this.introDialogue.nextBtn.setDepth(1001);
+    this.introDialogue.setDepth(999);
+    this.introDialogue.setInteractive().on(
+      "pointerdown",
+      () => console.log("hi"),
+    );
+
+    this.add.existing(this.introDialogue);
   }
 
   /** Update the tile’s appearance based on its damage state */

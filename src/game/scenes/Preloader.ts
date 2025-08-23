@@ -58,6 +58,8 @@ export class Preloader extends Scene {
     this.load.image("damageTiles", "damage_tilemap.png");
     this.load.image("dungeonTiles", "tilemap.png");
     this.load.tilemapTiledJSON("dungeonMap", "dungeon_map.tmj");
+    this.load.image("hero", "hero_portrait.png");
+    this.load.image("enemy", "enemy_portrait.png");
 
     this.load.spritesheet("lightning_strike", "lightning_strike.png", {
       frameWidth: 64,
